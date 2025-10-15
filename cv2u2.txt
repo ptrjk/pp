@@ -1,0 +1,67 @@
+
+#include <stdio.h>
+#include <stdint.h>
+#include <pthread.h>
+#define NUM_THREADS 7
+
+pthread_t main_id;
+pthread_t threads[NUM_THREADS];
+
+void *Trd1(void *ind) {
+	
+	uint32_t equal;
+	
+	pthread_t self_id = pthread_self();
+	
+	printf("Thread %d created thread %d using TRrd1\n", (uint32_t)threads[(uint32_t)ind], (uint32_t)self_id);
+	
+		equal = pthread_equal(threads[(uint32_t)ind], self_id);
+		printf("Threads %d, %d eqaulity is %d\n", (uint32_t)threads[(uint32_t)ind], (uint32_t)self_id, equal);
+	
+	if (self_id == threads[5]) {
+		
+		pthread_join(threads[6], NULL);
+		printf("Thread %d is ending\n", (uint32_t)threads[5]);
+	}
+	
+	if (self_id == threads[6]) {
+		
+		sleep(10);
+		printf("This is Thread %d after 10s\n", (uint32_t)threads[6]);
+	}
+	
+	pthread_exit(NULL);
+}
+
+void *Trd0(void *ind) {
+	
+	uint32_t index;
+	pthread_t self_id;
+	self_id = pthread_self();
+	
+	printf("Main thread created thread %d using Trd0\n", (uint32_t)self_id);
+	
+	
+	index = (uint32_t)ind * 2 + 3;
+	pthread_create(&threads[index], NULL, Trd1, (void *)ind);
+	
+	index = (uint32_t)ind * 2 + 4;
+	pthread_create(&threads[index], NULL, Trd1, (void *)ind);
+	
+	pthread_exit(NULL);
+}
+
+int main(int argc, char *argv[]) {
+
+	main_id = pthread_self();
+	printf("Main Thread %d\n", (uint32_t)main_id);
+		
+	pthread_create(&threads[0], NULL, Trd0, (void *)0);
+	pthread_create(&threads[1], NULL, Trd0, (void *)1);
+	
+	printf("Press Enter\n");
+	getchar();
+	
+	return 0;
+}
+
