@@ -1,0 +1,47 @@
+
+#include <stdio.h>
+#include <stdint.h>
+#include <pthread.h>
+
+uint32_t counter = 0;
+
+pthread_once_t once_control = PTHREAD_ONCE_INIT;
+
+void incrementor(pthread_t self_id){
+	
+	uint32_t poc;
+	
+	for (poc = 0; poc < 10; poc++) {
+		
+		counter++;
+		printf("Thread %d, counter value: %d\n", (uint32_t)self_id, counter);
+		sleep(1);
+	}
+}
+
+void *Trd0() {
+
+	pthread_t self_id;
+	self_id = pthread_self();
+
+	pthread_once(&once_control, incrementor);
+	
+	pthread_exit(NULL);
+}
+
+int main(void) {
+
+	pthread_t thread1, thread2;
+	
+	pthread_create(&thread1, NULL, Trd0, NULL);
+	pthread_create(&thread2, NULL, Trd0, NULL);
+
+	pthread_join(thread1, NULL);
+	pthread_join(thread2, NULL);
+
+	printf("Press Enter\n");
+	getchar();
+	
+	return 0;
+}
+
